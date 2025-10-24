@@ -11,7 +11,7 @@ process JSON_TO_TSV {
     """
     echo "organism_grouping_key\tbpa_sample_id\tlibrary_strategy\tplatform\tfile_name\tfile_checksum\turl\tbusco_lineage\tGenus_species\toptional_file" > reformatted_json.tsv
 
-    if [ ${jsonl} == *.gz ]
+    if [[ ${jsonl} == *.gz ]]
     then
         zcat ${jsonl} | jq -r '(. as \$r | \$r.runs[] | [
             \$r.organism.organism_grouping_key,
