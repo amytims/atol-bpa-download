@@ -6,20 +6,21 @@ def help_file() {
 
         --sample_id SAMPLE_ID
                 BPA organism grouping key of species for which to download data. 
-                Input .jsonl will be filtered on this field so only files corresponding 
-                to the grouping key will be downloaded. Sample ID should be of the form 
-                'taxid12345', where 12345 is the NCBI taxonomy id of the species
+                Input .jsonl or samplesheet will be filtered on this field so only files
+                corresponding to the grouping key will be downloaded. 
+                SAMPLE_ID should be of the form 'taxid12345', where 12345 is the NCBI 
+                taxonomy id of the species
 
         --use_samplesheet
                 Pull data from a samplesheet rather than a data mapper output file?
                 Default is 'false'
 
         --jsonl <PATH/TO/JSONL/FILE>
-                Path to the .jsonl file outputted by the data mapper
+                Path to the .jsonl(.gz) file outputted by the data mapper
 
         --samplesheet <PATH/TO/SAMPLESHEET>
-                Path to a samplesheet with download URLS in. See assets/samplesheet.csv
-                for an example
+                Path to a samplesheet with download URLS in. 
+                See assets/samplesheet_example.csv for an example
 
         --bpa_api_token BPA_API_TOKEN
                 API token for BioPlatforms Australia, enables downloading of datasets
