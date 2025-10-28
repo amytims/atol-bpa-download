@@ -1,4 +1,4 @@
-# atol-data-mover
+# atol-bpa-download
 
 Download data files from BPA data portal for AToL's Genome Engine.
 
