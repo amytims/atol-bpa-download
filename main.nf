@@ -26,7 +26,7 @@ def help_file() {
                                         filtered. Should correspond to an individual.
 
                     data_type       The type of data within each file. Currently
-                                        supported types: 'PacBio', 'HiC'
+                                        supported types: 'PACBIO', 'Hi-C'
 
                     file_name       The name of the file to be downloaded
 
