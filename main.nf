@@ -19,7 +19,26 @@ def help_file() {
                 Path to the .jsonl(.gz) file outputted by the data mapper
 
         --samplesheet <PATH/TO/SAMPLESHEET>
-                Path to a samplesheet with download URLS in. 
+                Path to a samplesheet with information on samples to be
+                downloaded. This is a .csv with the following column headers:
+                
+                    sample_id       Sample ID on which data in the samplesheet will be
+                                        filtered. Should correspond to an individual.
+
+                    data_type       The type of data within each file. Currently
+                                        supported types: 'PacBio', 'HiC'
+
+                    file_name       The name of the file to be downloaded
+
+                    file_checksum   The md5sum of the file to be downloaded 
+
+                    url             The URL from which to download the file
+
+                    busco_lineage   The busco lineage to be used with the sample in
+                                        downstream analyses
+
+                    scientific_name Binomial name of the sample specimen
+                    
                 See assets/samplesheet_example.csv for an example
 
         --bpa_api_token BPA_API_TOKEN
