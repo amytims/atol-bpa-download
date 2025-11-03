@@ -261,7 +261,8 @@ workflow {
     if ( params.ont_data ) {
     
         if ( !params.use_samplesheet ) {
-
+            // may also need to filter on archive_type = fastq_pass to avoid getting failed reads or pod5 output
+            // keep an eye on data mapper output to see what happens here
             ont_samples = all_samples
                 .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" }
                 .filter { sample -> sample.library_strategy == "ONT" }
