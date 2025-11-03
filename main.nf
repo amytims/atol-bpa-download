@@ -26,7 +26,7 @@ def help_file() {
                                         filtered. Should correspond to an individual.
 
                     data_type       The type of data within each file. Currently
-                                        supported types: 'PACBIO', 'Hi-C'
+                                        supported types: 'PACBIO', 'Hi-C', 'ONT'
 
                     file_name       The name of the file to be downloaded
 
@@ -258,20 +258,31 @@ workflow {
 
     // NOTE: there is currently no nanopore data in the data mapper output
 
-    // if ( params.ont_data ) {
-    //     ont_samples = all_samples
-    //         .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" }
-    //         .filter { sample -> sample.library_strategy == "ONT" }
-    //         .map { sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
+    if ( params.ont_data ) {
+    
+        if ( !params.use_samplesheet ) {
 
-    //     ont_samples.ifEmpty { error(
-    //         """
-    //         \'--ont_data\' is flagged, but no ONT samples corresponding to sample id 
-    //         \"${params.sample_id}\" could be found.
-    //         Check sample information or turn off \'--ont_data\' flag
-    //         """) }
+            ont_samples = all_samples
+                .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" }
+                .filter { sample -> sample.library_strategy == "ONT" }
+                .map { sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
 
-    //     DOWNLOAD_FILE_ONT(hic_samples, 'ont')
-    // }
+        } else {
 
+                ont_samples = all_samples
+                .filter { sample -> sample.sample_id == "${params.sample_id}" }
+                .filter { sample -> sample.data_type == "ONT" }
+                .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
+
+        }
+
+        ont_samples.ifEmpty { error(
+            """
+            \'--ont_data\' is flagged, but no ONT samples corresponding to sample id 
+            \"${params.sample_id}\" could be found.
+            Check sample information or turn off \'--ont_data\' flag
+            """) }\
+
+        DOWNLOAD_FILE_ONT(ont_samples, 'ont')
+    }
 }
