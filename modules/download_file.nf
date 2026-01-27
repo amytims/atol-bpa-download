@@ -1,5 +1,5 @@
 process DOWNLOAD_FILE {
-    publishDir "${params.outdir}/raw_reads/${data_type}", mode: 'symlink'
+    publishDir "${params.outdir}/raw_reads/${data_type}", mode: 'copy'
 
     input:
     tuple val(sample_id), val(file_name), val(url), val(file_checksum)
