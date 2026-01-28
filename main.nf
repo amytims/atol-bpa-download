@@ -81,7 +81,7 @@ if ( params.remove('help') ) {
 // check no unexpected parameters were specified
 allowed_params = [
     // pipeline inputs
-    "yaml"
+    "yaml",
     "sample_id",
     "use_samplesheet",
     "jsonl",
