@@ -6,14 +6,16 @@ process READ_YAML {
     input:
     val(yaml)
 
+    output:
+    val sd
+    val input
+
     exec:
     // Read input
     def input = readYAML(yaml)
     
     def sd = input.reads
 
-    input.view()
 
-    sd.view()
 
 }

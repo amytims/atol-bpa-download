@@ -168,132 +168,137 @@ include { DOWNLOAD_FILE as DOWNLOAD_FILE_ONT } from './modules/download_file.nf'
 // actually run the workflow
 workflow {
 
+    READ_YAML(yaml)
+
+    READ_YAML.out.input.view()
+
+    READ_YAML.out.sd.view()
     // ################################
     // ### getting lists of samples ###
     // ################################
 
 
-    if ( !params.use_samplesheet ) {
-        // set up channel for input jsonl file
-        json_to_tsv_ch = Channel.fromPath(params.jsonl)
+    // if ( !params.use_samplesheet ) {
+    //     // set up channel for input jsonl file
+    //     json_to_tsv_ch = Channel.fromPath(params.jsonl)
 
-        // parse it to tsv format for legibility
-        JSON_TO_TSV(json_to_tsv_ch)
+    //     // parse it to tsv format for legibility
+    //     JSON_TO_TSV(json_to_tsv_ch)
 
-        // read in all the rows of the new tsv file
-        all_samples = JSON_TO_TSV.out.tsv
-            .splitCsv(header:true, sep:'\t')
-            //.view()
+    //     // read in all the rows of the new tsv file
+    //     all_samples = JSON_TO_TSV.out.tsv
+    //         .splitCsv(header:true, sep:'\t')
+    //         //.view()
 
-    } else {
-        all_samples = Channel.fromPath( params.samplesheet )
-            .splitCsv(header:true)
-    }
+    // } else {
+    //     all_samples = Channel.fromPath( params.samplesheet )
+    //         .splitCsv(header:true)
+    // }
     
-    // ##################################################
-    // ### get pacbio reads for sample_id of interest ###
-    // ##################################################
+    // // ##################################################
+    // // ### get pacbio reads for sample_id of interest ###
+    // // ##################################################
 
-    if ( params.pacbio_data ) {
+    // if ( params.pacbio_data ) {
 
-        if ( !params.use_samplesheet ) {
+    //     if ( !params.use_samplesheet ) {
 
-            pacbio_samples = all_samples
-                .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" } // keeps only the samples for the species we want
-                .filter { sample -> sample.platform == "PACBIO_SMRT" } // keeps only the PacBio samples
-                .filter { sample -> sample.library_strategy == "WGS" } // keeps only the WGS ones - filters out longread RNA-seq 
-                        // NOTE: also filters out a few samples with WGA library strategy
-                        // if we want to keep these, maybe instead filter on "library_source: GENOMIC"
-                .filter { sample -> sample.optional_file == "false" } // filters out any .subreads.bam files
-                .map {sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
+    //         pacbio_samples = all_samples
+    //             .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" } // keeps only the samples for the species we want
+    //             .filter { sample -> sample.platform == "PACBIO_SMRT" } // keeps only the PacBio samples
+    //             .filter { sample -> sample.library_strategy == "WGS" } // keeps only the WGS ones - filters out longread RNA-seq 
+    //                     // NOTE: also filters out a few samples with WGA library strategy
+    //                     // if we want to keep these, maybe instead filter on "library_source: GENOMIC"
+    //             .filter { sample -> sample.optional_file == "false" } // filters out any .subreads.bam files
+    //             .map {sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
 
-        } else {
-            pacbio_samples = all_samples
-                .filter { sample -> sample.sample_id == "${params.sample_id}" }
-                .filter { sample -> sample.data_type == "PACBIO" }
-                .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
-        }
+    //     } else {
+    //         pacbio_samples = all_samples
+    //             .filter { sample -> sample.sample_id == "${params.sample_id}" }
+    //             .filter { sample -> sample.data_type == "PACBIO" }
+    //             .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
+    //     }
 
-        // if no PacBio Samples are found, throw an error and exit the process
-        pacbio_samples.ifEmpty { error(
-            """
-            \'--pacbio_data\' is set as true, but no PacBio samples corresponding to sample id 
-            \"${params.sample_id}\" could be found.
-            Check sample information or turn off \'--pacbio_data\' flag
-            """
-            ) }
-        //pacbio_samples.view()
+    //     // if no PacBio Samples are found, throw an error and exit the process
+    //     pacbio_samples.ifEmpty { error(
+    //         """
+    //         \'--pacbio_data\' is set as true, but no PacBio samples corresponding to sample id 
+    //         \"${params.sample_id}\" could be found.
+    //         Check sample information or turn off \'--pacbio_data\' flag
+    //         """
+    //         ) }
+    //     //pacbio_samples.view()
 
-        DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
+    //     DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
 
-    }
+    // }
 
 
-    // ###############################################
-    // ### get hic reads for sample_id of interest ###
-    // ###############################################
+    // // ###############################################
+    // // ### get hic reads for sample_id of interest ###
+    // // ###############################################
 
-    if ( params.hic_data ) {
+    // if ( params.hic_data ) {
 
-        if ( !params.use_samplesheet ) {
+    //     if ( !params.use_samplesheet ) {
 
-            hic_samples = all_samples
-                .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" }
-                .filter { sample -> sample.library_strategy == "Hi-C" }
-                .map { sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
+    //         hic_samples = all_samples
+    //             .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" }
+    //             .filter { sample -> sample.library_strategy == "Hi-C" }
+    //             .map { sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
 
-        } else {
+    //     } else {
 
-            hic_samples = all_samples
-                .filter { sample -> sample.sample_id == "${params.sample_id}" }
-                .filter { sample -> sample.data_type == "Hi-C" }
-                .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
+    //         hic_samples = all_samples
+    //             .filter { sample -> sample.sample_id == "${params.sample_id}" }
+    //             .filter { sample -> sample.data_type == "Hi-C" }
+    //             .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
                 
-        }
+    //     }
 
-        hic_samples.ifEmpty { error(
-            """
-            \'--hic_data\' is flagged, but no Hi-C samples corresponding to sample id 
-            \"${params.sample_id}\" could be found.
-            Check sample information or turn off \'--hic_data\' flag
-            """) }
+    //     hic_samples.ifEmpty { error(
+    //         """
+    //         \'--hic_data\' is flagged, but no Hi-C samples corresponding to sample id 
+    //         \"${params.sample_id}\" could be found.
+    //         Check sample information or turn off \'--hic_data\' flag
+    //         """) }
 
-        DOWNLOAD_FILE_HIC(hic_samples, 'hic')
-    }
+    //     DOWNLOAD_FILE_HIC(hic_samples, 'hic')
+    // }
 
 
-    // ###############################################
-    // ### get ont reads for sample_id of interest ###
-    // ###############################################
+    // // ###############################################
+    // // ### get ont reads for sample_id of interest ###
+    // // ###############################################
 
-    // NOTE: there is currently no nanopore data in the data mapper output
+    // // NOTE: there is currently no nanopore data in the data mapper output
 
-    if ( params.ont_data ) {
+    // if ( params.ont_data ) {
     
-        if ( !params.use_samplesheet ) {
-            // may also need to filter on archive_type = fastq_pass to avoid getting failed reads or pod5 output
-            // keep an eye on data mapper output to see what happens here
-            ont_samples = all_samples
-                .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" }
-                .filter { sample -> sample.library_strategy == "ONT" }
-                .map { sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
+    //     if ( !params.use_samplesheet ) {
+    //         // may also need to filter on archive_type = fastq_pass to avoid getting failed reads or pod5 output
+    //         // keep an eye on data mapper output to see what happens here
+    //         ont_samples = all_samples
+    //             .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" }
+    //             .filter { sample -> sample.library_strategy == "ONT" }
+    //             .map { sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
 
-        } else {
+    //     } else {
 
-                ont_samples = all_samples
-                .filter { sample -> sample.sample_id == "${params.sample_id}" }
-                .filter { sample -> sample.data_type == "ONT" }
-                .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
+    //             ont_samples = all_samples
+    //             .filter { sample -> sample.sample_id == "${params.sample_id}" }
+    //             .filter { sample -> sample.data_type == "ONT" }
+    //             .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
 
-        }
+    //     }
 
-        ont_samples.ifEmpty { error(
-            """
-            \'--ont_data\' is flagged, but no ONT samples corresponding to sample id 
-            \"${params.sample_id}\" could be found.
-            Check sample information or turn off \'--ont_data\' flag
-            """) }\
+    //     ont_samples.ifEmpty { error(
+    //         """
+    //         \'--ont_data\' is flagged, but no ONT samples corresponding to sample id 
+    //         \"${params.sample_id}\" could be found.
+    //         Check sample information or turn off \'--ont_data\' flag
+    //         """) }\
 
-        DOWNLOAD_FILE_ONT(ont_samples, 'ont')
-    }
+    //     DOWNLOAD_FILE_ONT(ont_samples, 'ont')
+    // }
 }
