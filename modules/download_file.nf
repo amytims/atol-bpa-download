@@ -13,7 +13,7 @@ process DOWNLOAD_FILE {
     """
     wget --header="X-CKAN-API-Key: ${params.bpa_api_token}" $url -O $file_name
 
-    echo "$file_checksum $file_name" | md5sum -c
+    echo "$md5sum $file_name" | md5sum -c
 
     """
 }
