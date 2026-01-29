@@ -180,8 +180,10 @@ workflow {
 
     //def busco = yaml_data.busco_lineage
 
-    println '${yaml_data.busco_lineage}'
+    busco = Channel.fromList(yaml_data['busco_lineage'])
 
+    busco.view()
+    
     //READ_YAML.out.sd.view()
     // ################################
     // ### getting lists of samples ###
