@@ -180,7 +180,7 @@ workflow {
 
     //def busco = yaml_data.busco_lineage
 
-    println ${yaml_data.busco_lineage}
+    println(${yaml_data.busco_lineage})
 
     //READ_YAML.out.sd.view()
     // ################################
