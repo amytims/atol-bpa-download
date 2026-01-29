@@ -170,6 +170,10 @@ workflow {
 
     //READ_YAML(params.yaml)
 
+    def readYAML(yamlfile) {
+        return new org.yaml.snakeyaml.Yaml().load(yamlfile.text)
+    }
+
     def yaml_data = readYAML(file(params.yaml))
 
     yaml_data.view()
