@@ -180,7 +180,7 @@ workflow {
 
     //def busco = yaml_data.busco_lineage
 
-    busco = Channel.fromList(yaml_data['busco_lineage'])
+    busco = yaml_data['busco_lineage']
 
     busco.view()
     
