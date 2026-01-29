@@ -165,118 +165,67 @@ include { DOWNLOAD_FILE as DOWNLOAD_FILE_HIC } from './modules/download_file.nf'
 include { DOWNLOAD_FILE as DOWNLOAD_FILE_ONT } from './modules/download_file.nf'
 
 
-    def readYAML(yamlfile) {
-        return new org.yaml.snakeyaml.Yaml().load(yamlfile.text)
-    }
+def readYAML(yamlfile) {
+    return new org.yaml.snakeyaml.Yaml().load(yamlfile.text)
+}
 
 // actually run the workflow
 workflow {
 
     //READ_YAML(params.yaml)
-
-
-
     def yaml_data = readYAML(file(params.yaml))
 
-    //def busco = yaml_data.busco_lineage
+    // ##################################################
+    // ### get pacbio reads for sample_id of interest ###
+    // ##################################################
 
-    busco = yaml_data.busco_lineage
+    if ( params.pacbio_data ) {
 
-    println busco
-    
-    //READ_YAML.out.sd.view()
-    // ################################
-    // ### getting lists of samples ###
-    // ################################
+        pacbio_samples = channel.of(yaml_data.reads.PACBIO_SMRT)
+            .flatMap { m ->
+                m.collect {id, meta ->
+                    [ file_name: id, format: meta.format, url: meta.url, md5sum: meta.md5sum, package: [], lane: [], read: [] ]
+            }
+        }
 
+        // if no PacBio Samples are found, throw an error and exit the process
+        pacbio_samples.ifEmpty { error(
+            """
+            \'--pacbio_data\' is set as true, but no PacBio samples were listed in the config .yaml
+            Check the .yaml file or turn off \'--pacbio_data\' flag
+            """
+            ) }
+        //pacbio_samples.view()
 
-    // if ( !params.use_samplesheet ) {
-    //     // set up channel for input jsonl file
-    //     json_to_tsv_ch = Channel.fromPath(params.jsonl)
+        DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
 
-    //     // parse it to tsv format for legibility
-    //     JSON_TO_TSV(json_to_tsv_ch)
-
-    //     // read in all the rows of the new tsv file
-    //     all_samples = JSON_TO_TSV.out.tsv
-    //         .splitCsv(header:true, sep:'\t')
-    //         //.view()
-
-    // } else {
-    //     all_samples = Channel.fromPath( params.samplesheet )
-    //         .splitCsv(header:true)
-    // }
-    
-    // // ##################################################
-    // // ### get pacbio reads for sample_id of interest ###
-    // // ##################################################
-
-    // if ( params.pacbio_data ) {
-
-    //     if ( !params.use_samplesheet ) {
-
-    //         pacbio_samples = all_samples
-    //             .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" } // keeps only the samples for the species we want
-    //             .filter { sample -> sample.platform == "PACBIO_SMRT" } // keeps only the PacBio samples
-    //             .filter { sample -> sample.library_strategy == "WGS" } // keeps only the WGS ones - filters out longread RNA-seq 
-    //                     // NOTE: also filters out a few samples with WGA library strategy
-    //                     // if we want to keep these, maybe instead filter on "library_source: GENOMIC"
-    //             .filter { sample -> sample.optional_file == "false" } // filters out any .subreads.bam files
-    //             .map {sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
-
-    //     } else {
-    //         pacbio_samples = all_samples
-    //             .filter { sample -> sample.sample_id == "${params.sample_id}" }
-    //             .filter { sample -> sample.data_type == "PACBIO" }
-    //             .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
-    //     }
-
-    //     // if no PacBio Samples are found, throw an error and exit the process
-    //     pacbio_samples.ifEmpty { error(
-    //         """
-    //         \'--pacbio_data\' is set as true, but no PacBio samples corresponding to sample id 
-    //         \"${params.sample_id}\" could be found.
-    //         Check sample information or turn off \'--pacbio_data\' flag
-    //         """
-    //         ) }
-    //     //pacbio_samples.view()
-
-    //     DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
-
-    // }
+    }
 
 
-    // // ###############################################
-    // // ### get hic reads for sample_id of interest ###
-    // // ###############################################
+    // ###############################################
+    // ### get hic reads for sample_id of interest ###
+    // ###############################################
 
-    // if ( params.hic_data ) {
+    if ( params.hic_data ) {
 
-    //     if ( !params.use_samplesheet ) {
+        hic_samples = channel.of(yaml_data.reads.'Hi-C')
+            .flatMap { n ->
+                n.collect { m ->
+                    [ file_name: m.name, format: m.format, url: m.url, md5sum: m.md5sum, package: m.package, lane: m.lane, read: m.read ]
+                }
+            }
 
-    //         hic_samples = all_samples
-    //             .filter { sample -> sample.organism_grouping_key == "${params.sample_id}" }
-    //             .filter { sample -> sample.library_strategy == "Hi-C" }
-    //             .map { sample -> [sample.organism_grouping_key, sample.file_name, sample.url, sample.file_checksum] }
+        hic_samples.ifEmpty { error(
+            """
+            \'--hic_data\' is flagged, but no Hi-C samples corresponding to sample id 
+            \"${params.sample_id}\" could be found.
+            Check sample information or turn off \'--hic_data\' flag
+            """) }
 
-    //     } else {
+        DOWNLOAD_FILE_HIC(hic_samples, 'hic')
 
-    //         hic_samples = all_samples
-    //             .filter { sample -> sample.sample_id == "${params.sample_id}" }
-    //             .filter { sample -> sample.data_type == "Hi-C" }
-    //             .map {sample -> [sample.sample_id, sample.file_name, sample.url, sample.file_checksum] }
-                
-    //     }
-
-    //     hic_samples.ifEmpty { error(
-    //         """
-    //         \'--hic_data\' is flagged, but no Hi-C samples corresponding to sample id 
-    //         \"${params.sample_id}\" could be found.
-    //         Check sample information or turn off \'--hic_data\' flag
-    //         """) }
-
-    //     DOWNLOAD_FILE_HIC(hic_samples, 'hic')
-    // }
+        
+    }
 
 
     // // ###############################################
