@@ -211,20 +211,21 @@ workflow {
         hic_samples = channel.of(yaml_data.reads.'Hi-C')
             .flatMap { n ->
                 n.collect { m ->
-                    [ file_name: m.name, format: m.format, url: m.url, md5sum: m.md5sum, package: m.package, lane: m.lane, read: m.read ]
+                    [ file_name: m.name, format: m.format, url: m.url, md5sum: m.md5sum, package: m.package, lane: m.lane_number, read: m.read ]
                 }
             }
 
         hic_samples.ifEmpty { error(
             """
-            \'--hic_data\' is flagged, but no Hi-C samples corresponding to sample id 
-            \"${params.sample_id}\" could be found.
-            Check sample information or turn off \'--hic_data\' flag
+            \'--hic_data\' is flagged, but no Hi-C samples amples were listed in the config .yaml
+            Check the .yaml file or turn off \'--hic_data\' flag
             """) }
 
         DOWNLOAD_FILE_HIC(hic_samples, 'hic')
 
-        
+        hic_files_ch = DOWNLOAD_FILE_HIC.out.file.groupTuple(by: [0,2] )
+
+        CAT_FILES(hic_files_ch)
     }
 
 
