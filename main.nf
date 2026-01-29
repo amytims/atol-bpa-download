@@ -170,7 +170,7 @@ workflow {
 
     //READ_YAML(params.yaml)
 
-    def yaml_data = readYaml(file(params.yaml))
+    def yaml_data = readYAML(file(params.yaml))
 
     yaml_data.view()
 
