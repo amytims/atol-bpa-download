@@ -178,7 +178,9 @@ workflow {
 
     def yaml_data = readYAML(file(params.yaml))
 
-    yaml_data.view()
+    def busco = yaml_data.busco_lineage
+
+    println ${busco}
 
     //READ_YAML.out.sd.view()
     // ################################
