@@ -182,7 +182,7 @@ workflow {
 
     busco = yaml_data['busco_lineage']
 
-    busco.view()
+    println busco
     
     //READ_YAML.out.sd.view()
     // ################################
