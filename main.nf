@@ -165,14 +165,16 @@ include { DOWNLOAD_FILE as DOWNLOAD_FILE_HIC } from './modules/download_file.nf'
 include { DOWNLOAD_FILE as DOWNLOAD_FILE_ONT } from './modules/download_file.nf'
 
 
+    def readYAML(yamlfile) {
+        return new org.yaml.snakeyaml.Yaml().load(yamlfile.text)
+    }
+
 // actually run the workflow
 workflow {
 
     //READ_YAML(params.yaml)
 
-    def readYAML(yamlfile) {
-        return new org.yaml.snakeyaml.Yaml().load(yamlfile.text)
-    }
+
 
     def yaml_data = readYAML(file(params.yaml))
 
