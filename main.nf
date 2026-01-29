@@ -168,11 +168,13 @@ include { DOWNLOAD_FILE as DOWNLOAD_FILE_ONT } from './modules/download_file.nf'
 // actually run the workflow
 workflow {
 
-    READ_YAML(yaml)
+    //READ_YAML(params.yaml)
 
-    READ_YAML.out.input.view()
+    def yaml_data = readYaml(file(params.yaml))
 
-    READ_YAML.out.sd.view()
+    yaml_data.view()
+
+    //READ_YAML.out.sd.view()
     // ################################
     // ### getting lists of samples ###
     // ################################
