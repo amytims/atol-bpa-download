@@ -223,9 +223,17 @@ workflow {
 
         DOWNLOAD_FILE_HIC(hic_samples, 'hic')
 
-        hic_files_ch = DOWNLOAD_FILE_HIC.out.file.groupTuple(by: [0,2] )
+        //hic_files_ch = DOWNLOAD_FILE_HIC.out.file.groupTuple(by: [0,2] )
 
-        CAT_FILES(hic_files_ch)
+        hic_files_ch = DOWNLOAD_FILE_HIC.out.file
+            .map { sample -> [
+                sample.subMap(['pkg', 'read']),
+                sample
+                ]
+            }
+
+        hic_files_ch.view()
+        //CAT_FILES(hic_files_ch)
     }
 
 
