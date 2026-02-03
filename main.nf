@@ -210,8 +210,8 @@ workflow {
 
         hic_samples = channel.of(yaml_data.reads.'Hi-C')
             .flatMap { n ->
-                n.collect { m ->
-                    [ file_name: m.name, format: m.format, url: m.url, md5sum: m.md5sum, package: m.package, lane: m.lane_number, read: m.read ]
+                n.collect { pkg, m ->
+                    [ package:pkg, file_name: m.name, format: m.format, url: m.url, md5sum: m.md5sum, package: m.package, lane: m.lane_number, read: m ]
                 }
             }
 
