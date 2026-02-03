@@ -106,92 +106,101 @@ def readYAML(yamlfile) {
 // actually run the workflow
 workflow {
 
-    // read in the yaml file
+    // #############################
+    // ### read in the yaml file ###
+    // #############################
+
     def yaml_data = readYAML(file(params.yaml))
 
-    // ##################################################
-    // ### get pacbio reads for sample_id of interest ###
-    // ##################################################
+    // ############################
+    // ### process pacbio reads ###
+    // ############################
 
     if ( params.pacbio_data ) {
 
-        // pacbio_samples = channel.of(yaml_data.reads.PACBIO_SMRT)
-        //     .flatMap { m ->
-        //         m.collect {pkg, meta ->
-        //             [ package: pkg, file_name: meta.name, format: meta.format, url: meta.url, md5sum: meta.md5sum, lane: [], read: [] ]
-        //     }
-        // }
-
+        // pull out the pacbio section of the config
         pacbio_samples = yaml_data.reads.PACBIO_SMRT
-            .collectMany { pkg, pkgData ->
-                pkgData.collect { file ->
-                    [
-                        package: pkg,
-                        file_name: file.name,
-                        format: file.format,
-                        url: file.url,
-                        md5sum: file.md5sum,
-                        lane: [],
-                        read: []
-                    ]
 
-                }
-            }
-        
-
-        pacbio_samples_ch = Channel.from(pacbio_samples)
-
-        // if no PacBio Samples are found, throw an error and exit the process
-        pacbio_samples_ch.ifEmpty { error(
+        // check it exists; format data for downloading
+        if ( !pacbio_samples ) { error(
             """
             \'--pacbio_data\' is set as true, but no PacBio samples were listed in the config .yaml
             Check the .yaml file or turn off \'--pacbio_data\' flag
             """
-            ) }
-
-        if ( params.dry_run ) {
-            pacbio_samples_ch.view()
+            ) 
         } else {
-            DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
-        }
-    }
-
-
-    // ###############################################
-    // ### get hic reads for sample_id of interest ###
-    // ###############################################
-
-    if ( params.hic_data ) {
-
-        def hic_samples = yaml_data.reads.'Hi-C'
-            .collectMany { pkg, pkgData ->
-                pkgData.collectMany {read, files ->
-                    files.collect { file ->
+            pacbio_samples_reformatted = pacbio_samples
+                .collectMany { pkg, pkgData ->
+                    pkgData.collect { file ->
                         [
                             package: pkg,
                             file_name: file.name,
                             format: file.format,
                             url: file.url,
                             md5sum: file.md5sum,
-                            lane: file.lane_number,
-                            read: read
+                            lane: [],
+                            read: []
                         ]
+
                     }
                 }
-            }
+            
+            pacbio_samples_ch = Channel.from(pacbio_samples_reformatted)
 
-        hic_samples_ch = Channel.from(hic_samples)
+        }
 
-        hic_samples_ch.ifEmpty { error(
+        // make sure we're not downloading anything accidentally
+        if ( params.dry_run ) {
+            pacbio_samples_ch.view()
+        } else {
+            DOWNLOAD_FILE_PACBIO(pacbio_samples_ch, 'hifi')
+        }
+    }
+
+
+    // #########################
+    // ### process hic reads ###
+    // #########################
+
+    if ( params.hic_data ) {
+
+        // pull out the hi-c section of the config
+        def hic_samples = yaml_data.reads.'Hi-C'
+
+        // check it exists; format data for downloading
+        if ( !hic_samples ) { error(
             """
-            \'--hic_data\' is flagged, but no Hi-C samples amples were listed in the config .yaml
+            \'--hic_data\' is flagged, but no Hi-C samples were listed in the config .yaml
             Check the .yaml file or turn off \'--hic_data\' flag
-            """) }
-        
+            """)
+
+        } else {
+
+            hic_samples_reformatted = hic_samples
+                .collectMany { pkg, pkgData ->
+                        pkgData.collectMany {read, files ->
+                            files.collect { file ->
+                                [
+                                    package: pkg,
+                                    file_name: file.name,
+                                    format: file.format,
+                                    url: file.url,
+                                    md5sum: file.md5sum,
+                                    lane: file.lane_number,
+                                    read: read
+                                ]
+                            }
+                        }
+                    }
+
+            hic_samples_ch = Channel.from(hic_samples_reformatted)
+        }
+
+        // make sure we're not downloading anything accidentally
         if ( params.dry_run ) {
             hic_samples_ch.view()
         } else {
-            DOWNLOAD_FILE_HIC(hic_samples, 'hic')
+            DOWNLOAD_FILE_HIC(hic_samples_ch, 'hic')
         }
     }
 
