@@ -203,7 +203,7 @@ workflow {
 
                 }
             }
-        }
+        
 
         pacbio_samples_ch = Channel.from(pacbio_samples)
 
