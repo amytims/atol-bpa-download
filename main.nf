@@ -208,10 +208,28 @@ workflow {
 
     if ( params.hic_data ) {
 
-        hic_samples = channel.of(yaml_data.reads.'Hi-C')
-            .flatMap { n ->
-                n.collect { pkg, m ->
-                    [ package:pkg, file_name: m.name, format: m.format, url: m.url, md5sum: m.md5sum, package: m.package, lane: m.lane_number, read: m ]
+        // hic_samples = channel.of(yaml_data.reads.'Hi-C')
+        //     .flatMap { n ->
+        //         n.collect { pkg, m ->
+        //             def read = m.name()
+        //             [ package:pkg, file_name: m.name, format: m.format, url: m.url, md5sum: m.md5sum, lane: m.lane_number, read: m.name() ]
+        //         }
+        //     }
+
+        def hic_samples = channel.of(yaml_data.reads.'Hi-C')
+            .collectMany { pkg, pkgData ->
+                pkgData.colectMany {read, files ->
+                    files.collect {entry ->
+                        [
+                            package: pkg,
+                            file_name: entry.name,
+                            format: entry.format,
+                            url: entry.url,
+                            md5sum: entry.md5sum,
+                            lane: lane_number,
+                            read: read
+                        ]
+                    }
                 }
             }
 
