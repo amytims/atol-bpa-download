@@ -188,7 +188,7 @@ workflow {
         //     }
         // }
 
-        pacbio_samples = channel.of(yaml_data.reads.PACBIO_SMRT)
+        pacbio_samples = yaml_data.reads.PACBIO_SMRT
             .collectMany { pkg, pkgData ->
                 pkgData.collect { file ->
                     [
@@ -227,7 +227,7 @@ workflow {
 
     if ( params.hic_data ) {
 
-        def hic_samples = channel.of(yaml_data.reads.'Hi-C')
+        def hic_samples = yaml_data.reads.'Hi-C'
             .collectMany { pkg, pkgData ->
                 pkgData.collectMany {read, files ->
                     files.collect { file ->
@@ -243,6 +243,8 @@ workflow {
                     }
                 }
             }
+
+        hic_samples_ch = Channel.from(hic_samples)
 
         hic_samples_ch.ifEmpty { error(
             """
