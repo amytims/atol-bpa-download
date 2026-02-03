@@ -82,6 +82,7 @@ if ( params.remove('help') ) {
 allowed_params = [
     // pipeline inputs
     "yaml",
+    "dry-run",
     "sample_id",
     "use_samplesheet",
     "jsonl",
@@ -214,10 +215,12 @@ workflow {
             Check the .yaml file or turn off \'--pacbio_data\' flag
             """
             ) }
-        pacbio_samples_ch.view()
 
-        //DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
-
+        if ( params.dry-run ) {
+            pacbio_samples_ch.view()
+        } else {
+            DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
+        }
     }
 
 
@@ -252,9 +255,12 @@ workflow {
             Check the .yaml file or turn off \'--hic_data\' flag
             """) }
 
-        hic_samples_ch.view()
-        //DOWNLOAD_FILE_HIC(hic_samples, 'hic')
-
+                
+        if ( params.dry-run ) {
+            hic_samples_ch.view()
+        } else {
+            DOWNLOAD_FILE_HIC(hic_samples, 'hic')
+        }
     }
 
 
