@@ -237,7 +237,7 @@ workflow {
                             format: file.format,
                             url: file.url,
                             md5sum: file.md5sum,
-                            lane: lane_number,
+                            lane: file.lane_number,
                             read: read
                         ]
                     }
