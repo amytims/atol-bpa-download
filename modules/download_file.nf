@@ -2,7 +2,7 @@ process DOWNLOAD_FILE {
     //publishDir "${params.outdir}/raw_reads/${data_type}", mode: 'copy'
 
     input:
-    tuple val(file_name), val(format), val(url), val(md5sum), val(pkg), val(lane), val(read)
+    tuple val(pkg), val(file_name), val(format), val(url), val(md5sum), val(lane), val(read)
     val(data_type)
 
     output:
@@ -14,6 +14,5 @@ process DOWNLOAD_FILE {
     wget --header="X-CKAN-API-Key: ${params.bpa_api_token}" $url -O $file_name
 
     echo "$md5sum $file_name" | md5sum -c
-
     """
 }
