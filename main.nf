@@ -181,21 +181,40 @@ workflow {
 
     if ( params.pacbio_data ) {
 
+        // pacbio_samples = channel.of(yaml_data.reads.PACBIO_SMRT)
+        //     .flatMap { m ->
+        //         m.collect {pkg, meta ->
+        //             [ package: pkg, file_name: meta.name, format: meta.format, url: meta.url, md5sum: meta.md5sum, lane: [], read: [] ]
+        //     }
+        // }
+
         pacbio_samples = channel.of(yaml_data.reads.PACBIO_SMRT)
-            .flatMap { m ->
-                m.collect {pkg, meta ->
-                    [ package: pkg, file_name: meta.name, format: meta.format, url: meta.url, md5sum: meta.md5sum, lane: [], read: [] ]
+            .collectMany { pkg, pkgData ->
+                pkgData.collect { file ->
+                    [
+                        package: pkg,
+                        file_name: file.name,
+                        format: file.format,
+                        url: file.url,
+                        md5sum: file.md5sum,
+                        lane: [],
+                        read: []
+                    ]
+
+                }
             }
         }
 
+        pacbio_samples_ch = Channel.from(pacbio_samples)
+
         // if no PacBio Samples are found, throw an error and exit the process
-        pacbio_samples.ifEmpty { error(
+        pacbio_samples_ch.ifEmpty { error(
             """
             \'--pacbio_data\' is set as true, but no PacBio samples were listed in the config .yaml
             Check the .yaml file or turn off \'--pacbio_data\' flag
             """
             ) }
-        pacbio_samples.view()
+        pacbio_samples_ch.view()
 
         //DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
 
@@ -208,24 +227,16 @@ workflow {
 
     if ( params.hic_data ) {
 
-        // hic_samples = channel.of(yaml_data.reads.'Hi-C')
-        //     .flatMap { n ->
-        //         n.collect { pkg, m ->
-        //             def read = m.name()
-        //             [ package:pkg, file_name: m.name, format: m.format, url: m.url, md5sum: m.md5sum, lane: m.lane_number, read: m.name() ]
-        //         }
-        //     }
-
         def hic_samples = channel.of(yaml_data.reads.'Hi-C')
             .collectMany { pkg, pkgData ->
-                pkgData.colectMany {read, files ->
-                    files.collect {entry ->
+                pkgData.collectMany {read, files ->
+                    files.collect { file ->
                         [
                             package: pkg,
-                            file_name: entry.name,
-                            format: entry.format,
-                            url: entry.url,
-                            md5sum: entry.md5sum,
+                            file_name: file.name,
+                            format: file.format,
+                            url: file.url,
+                            md5sum: file.md5sum,
                             lane: lane_number,
                             read: read
                         ]
@@ -233,13 +244,13 @@ workflow {
                 }
             }
 
-        hic_samples.ifEmpty { error(
+        hic_samples_ch.ifEmpty { error(
             """
             \'--hic_data\' is flagged, but no Hi-C samples amples were listed in the config .yaml
             Check the .yaml file or turn off \'--hic_data\' flag
             """) }
 
-        hic_samples.view()
+        hic_samples_ch.view()
         //DOWNLOAD_FILE_HIC(hic_samples, 'hic')
 
     }
