@@ -82,11 +82,7 @@ if ( params.remove('help') ) {
 allowed_params = [
     // pipeline inputs
     "yaml",
-    "dry-run",
-    "sample_id",
-    "use_samplesheet",
-    "jsonl",
-    "samplesheet",
+    "dry_run",
     "bpa_api_token",
     "outdir",
     "pacbio_data",
@@ -106,11 +102,11 @@ params.each { entry ->
 }
 
 // check required parameters are specified; throw error if not
-if ( !params.yaml ) { error(
-    """
-    ERROR: No yaml file provided: \'--sample_id\'
-    """
-)}
+// if ( !params.yaml ) { error(
+//     """
+//     ERROR: No yaml file provided: \'--sample_id\'
+//     """
+// )}
 
 // if ( !params.sample_id ) { error(
 //     """
@@ -216,7 +212,7 @@ workflow {
             """
             ) }
 
-        if ( params.dry-run ) {
+        if ( params.dry_run ) {
             pacbio_samples_ch.view()
         } else {
             DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
@@ -256,7 +252,7 @@ workflow {
             """) }
 
                 
-        if ( params.dry-run ) {
+        if ( params.dry_run ) {
             hic_samples_ch.view()
         } else {
             DOWNLOAD_FILE_HIC(hic_samples, 'hic')
