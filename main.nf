@@ -183,8 +183,8 @@ workflow {
 
         pacbio_samples = channel.of(yaml_data.reads.PACBIO_SMRT)
             .flatMap { m ->
-                m.collect {id, meta ->
-                    [ file_name: id, format: meta.format, url: meta.url, md5sum: meta.md5sum, package: [], lane: [], read: [] ]
+                m.collect {pkg, meta ->
+                    [ package: pkg, file_name: meta.name, format: meta.format, url: meta.url, md5sum: meta.md5sum, lane: [], read: [] ]
             }
         }
 
