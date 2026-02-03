@@ -195,9 +195,9 @@ workflow {
             Check the .yaml file or turn off \'--pacbio_data\' flag
             """
             ) }
-        //pacbio_samples.view()
+        pacbio_samples.view()
 
-        DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
+        //DOWNLOAD_FILE_PACBIO(pacbio_samples, 'hifi')
 
     }
 
@@ -221,19 +221,9 @@ workflow {
             Check the .yaml file or turn off \'--hic_data\' flag
             """) }
 
-        DOWNLOAD_FILE_HIC(hic_samples, 'hic')
+        hic_samples.view()
+        //DOWNLOAD_FILE_HIC(hic_samples, 'hic')
 
-        //hic_files_ch = DOWNLOAD_FILE_HIC.out.file.groupTuple(by: [0,2] )
-
-        hic_files_ch = DOWNLOAD_FILE_HIC.out.file
-            .map { sample -> [
-                sample.subMap(['pkg', 'read']),
-                sample
-                ]
-            }
-
-        hic_files_ch.view()
-        //CAT_FILES(hic_files_ch)
     }
 
 
