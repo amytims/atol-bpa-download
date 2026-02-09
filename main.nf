@@ -205,9 +205,9 @@ workflow {
     }
 
 
-    // // ###############################################
-    // // ### get ont reads for sample_id of interest ###
-    // // ###############################################
+    // // #############################
+    // // ### downloading ont reads ###
+    // // #############################
 
     // // NOTE: there is currently no nanopore data in the data mapper output
 
@@ -237,6 +237,11 @@ workflow {
     //         Check sample information or turn off \'--ont_data\' flag
     //         """) }\
 
-    //     DOWNLOAD_FILE_ONT(ont_samples, 'ont')
+        // make sure we're not downloading anything accidentally
+        // if ( params.dry_run ) {
+        //     ont_samples_ch.view()
+        // } else {
+        //     DOWNLOAD_FILE_ONT(ont_samples_ch, 'ont')
+        // }
     // }
 }
