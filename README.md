@@ -74,7 +74,7 @@ output:
                 hi-c reads:     './results/hic/'
 ```
 
-To-do:
+## To-do:
 1. Figure out what config formatting will be for Oxford Nanopore data; update pipeline to download ONT reads 
 2. Set `--dry_run` default to 'false' after testing is finished
 3. Consider deprecating `--pacbio_data`, `--hic_data` and `--ont_data` options, or setting them to 'true' by default. This way, all files in the config file are downloaded by default and specific ones can be downloaded again if somethign goes wrong by toggling other file types to 'false'
