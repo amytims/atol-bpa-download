@@ -13,7 +13,9 @@ nextflow pull amytims/atol-bpa-download -r dev
 
 ## Usage
 
-### Download pacbio hifi and hi-c reads from a config.yaml file outputted by a query to AToL's data mapper:
+### Download read files in a config.yaml file outputted by a query to AToL's data mapper:
+
+In this case, we'd be downloading pacbio and hic data files
 
 ```
 nextflow run amytims/atol-bpa-download \
