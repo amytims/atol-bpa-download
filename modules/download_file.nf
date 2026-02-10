@@ -1,5 +1,5 @@
 process DOWNLOAD_FILE {
-    publishDir "${params.outdir}/raw_reads/${data_type}", mode: 'copy'
+    publishDir "${params.outdir}/${data_type}", mode: 'copy'
 
     input:
     tuple val(pkg), val(file_name), val(format), val(url), val(md5sum), val(lane), val(read)
