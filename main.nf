@@ -63,6 +63,7 @@ allowed_params = [
     "max_memory"
 ]
 
+// check for any unknown parameters
 params.each { entry ->
     if ( !allowed_params.contains(entry.key) ) {
         println("The parameter <${entry.key}> is not known");
@@ -98,7 +99,7 @@ include { DOWNLOAD_FILE as DOWNLOAD_FILE_PACBIO } from './modules/download_file.
 include { DOWNLOAD_FILE as DOWNLOAD_FILE_HIC } from './modules/download_file.nf'
 include { DOWNLOAD_FILE as DOWNLOAD_FILE_ONT } from './modules/download_file.nf'
 
-
+// pull the snakeyaml add-on to process the .yaml file
 def readYAML(yamlfile) {
     return new org.yaml.snakeyaml.Yaml().load(yamlfile.text)
 }
