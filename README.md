@@ -65,13 +65,13 @@ input:
 output:
     --outdir <PATH/TO/OUTPUT/DIRECTORY>
             File path to where downloaded files should be stored
-            Default is './results'
+            Default is './results/raw_reads'
 
             Each file type will automatically be given its own subdirectory inside 
             this one, e.g.:
-                pacbio reads:   './results/hifi/'
-                nanopore reads: './results/ont/'
-                hi-c reads:     './results/hic/'
+                pacbio reads:   './results/raw_reads/hifi/'
+                nanopore reads: './results/raw_reads/ont/'
+                hi-c reads:     './results/raw_reads/hic/'
 ```
 
 ## To-do:
