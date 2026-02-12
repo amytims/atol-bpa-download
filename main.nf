@@ -147,14 +147,13 @@ workflow {
                     pkgData.collect { file ->
                         [
                             package: pkg,
-                            file_name: file.name,
+                            file_name: file.url.tokenize('/')[-1],
                             format: file.format,
                             url: file.url,
                             md5sum: file.md5sum,
                             lane: [],
                             read: []
                         ]
-
                     }
                 }
             
@@ -195,7 +194,7 @@ workflow {
                             files.collect { file ->
                                 [
                                     package: pkg,
-                                    file_name: file.name,
+                                    file_name: file.url.tokenize('/')[-1],
                                     format: file.format,
                                     url: file.url,
                                     md5sum: file.md5sum,
