@@ -148,7 +148,6 @@ workflow {
                         [
                             package: pkg,
                             file_name: file.url.tokenize('/')[-1],
-                            format: file.format,
                             url: file.url,
                             md5sum: file.md5sum,
                             lane: [],
@@ -195,7 +194,6 @@ workflow {
                                 [
                                     package: pkg,
                                     file_name: file.url.tokenize('/')[-1],
-                                    format: file.format,
                                     url: file.url,
                                     md5sum: file.md5sum,
                                     lane: file.lane_number,
